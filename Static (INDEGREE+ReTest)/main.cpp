@@ -1,11 +1,9 @@
 #include <bits/stdc++.h>
 #include <unordered_set>
-#include <omp.h>
 #include <chrono>
 using namespace std;
 const unsigned ARRAY_SIZE_INCREMENT = 500000;
 const unsigned INF = (unsigned)4000000000;
-unsigned threads_num = 1;
 struct timespec start, finish;
 double elapsed;
 
@@ -113,22 +111,18 @@ void Graph::read_edge(char* graph_name)
 void Graph::initiate()
 {
 	d = (unsigned*)malloc(n * sizeof(unsigned));
-#pragma omp parallel for
 	for (long long i = 0; i < n; i++)
 		d[i] = 0;
-#pragma omp parallel for
 	for (long long i = 0; i < m; i++)
 	{
 		if (d[e[i].t1] < d[e[i].t2])
 		{
 			e[i].to = e[i].t1;
-#pragma omp atomic
 			d[e[i].t1]++;
 		}
 		else
 		{
 			e[i].to = e[i].t2;
-#pragma omp atomic
 			d[e[i].t2]++;
 		}
 	}
@@ -152,17 +146,18 @@ void Graph::approximate_orientation()
 void Graph::iterate()
 {
 	unsigned from;
-#pragma omp parallel for private(from) schedule(dynamic, 100000)
-	for (long long i = 0; i < m; i++)
+	for (int x = 0; x < n; x++)
 	{
-		from = e[i].to == e[i].t1 ? e[i].t2 : e[i].t1;
-		if (d[e[i].to] >= d[from] + 2)
+		for (unsigned i = 0; i < adj_length[x]; i++)
 		{
-#pragma omp atomic
-			d[e[i].to]--;
-#pragma omp atomic
-			d[from]++;
-			e[i].to = from;
+			Edge& ne = e[adj[x][i]];
+			unsigned from = ne.to == ne.t1 ? ne.t2 : ne.t1;
+			if (d[ne.to] >= d[from] + 2)
+			{
+				d[ne.to]--;
+				d[from]++;
+				ne.to = from;
+			}
 		}
 	}
 }
@@ -184,7 +179,6 @@ unsigned Graph::get_max_d()
 unsigned Graph::get_max_d()
 {
 	unsigned maxd = 0;
-#pragma omp parallel for reduction(max:maxd)
 	for (int i = 0; i < n; i++)
 		maxd = maxd > d[i] ? maxd : d[i];
 	return maxd;
@@ -311,7 +305,6 @@ bool Graph::DinicDFS(unsigned x)
 
 int main()
 {
-	omp_set_num_threads(threads_num);
 	FILE* dataset = fopen("./dataset.txt", "r");
 	char graph_name[100];
 	double runtime;
@@ -322,11 +315,12 @@ int main()
 		printf("!!!!!Now processing graph: %s\n", graph_name);
 		Graph G;
 		G.read_edge(graph_name);
+		G.construct_adjacency_list();
 
-		auto start = omp_get_wtime();
+		auto start = clock();
 		G.initiate();
 		G.approximate_orientation();
-		auto stop = omp_get_wtime();
+		auto stop = clock();
 		runtime = stop - start;
 
 		if (TESTING)
@@ -335,15 +329,14 @@ int main()
 			printf("p0 = %u\n", TEST::p0);
 			printf("Number of iterations = %u\n", TEST::iteration_time);
 		}
-		printf("Approximation time: %.2lf\n", runtime);
+		printf("Approximation time: %.2lf\n", runtime / CLOCKS_PER_SEC);
 
-		G.construct_adjacency_list();
-		start = omp_get_wtime();
+		start = clock();
 		G.exact_orientation();
-		stop = omp_get_wtime();
+		stop = clock();
 		runtime = stop - start;
 
-		printf("Re-orientation time: %.2lf\n", runtime);
+		printf("Re-orientation time: %.2lf\n", runtime / CLOCKS_PER_SEC);
 
 		printf("Pseudoarboricity: %u\n", G.pseudoarboricity);
 	}

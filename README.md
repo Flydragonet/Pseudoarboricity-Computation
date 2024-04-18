@@ -48,3 +48,5 @@ Datasets need to be stored in the “Graphs” folder. In “dataset.txt”, ent
 ```
 ./main
 ```
+
+Note that for dynamic algorithms, the number of edges to be updated can be changed by the "insert_num" variable, and this number must be more than the number of edges of the whole graph. 

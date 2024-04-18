@@ -7,7 +7,6 @@ Because some datasets used in the paper are too large to be uploaded to GitHub, 
 Datasets used for performance studies.
 
 | Catster | https://networkrepository.com/soc-catster.php |
-| --- | --- |
 | Berkstan | https://networkrepository.com/web-BerkStan-dir.php |
 | IT | https://networkrepository.com/web-it-2004.php |
 | WikiEO | http://www.konect.cc/networks/wikipedia_link_eo/ |
@@ -21,7 +20,6 @@ Datasets used for performance studies.
 Datasets used for temporal graphs experiments.
 
 | WikiElec | https://networkrepository.com/soc-wiki-elec.php |
-| --- | --- |
 | Epinions | https://networkrepository.com/soc-epinions-trust-dir.php |
 | HepTh | https://networkrepository.com/ca-cit-HepTh.php |
 

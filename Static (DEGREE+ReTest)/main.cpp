@@ -97,7 +97,6 @@ void Graph::read_edge(char* graph_name)
 		while (line[i] >= '0' && line[i] <= '9') e[m].t1 = e[m].t1 * 10 + line[i] - '0', i++;
 		while (line[i] < '0' || line[i]>'9')i++;
 		while (line[i] >= '0' && line[i] <= '9') e[m].t2 = e[m].t2 * 10 + line[i] - '0', i++;
-		if (e[m].t1 % 5 > 3 || e[m].t2 % 5 > 3) continue;
 		n = max3(n, e[m].t1, e[m].t2);
 		m++;
 		if (m == Emax)
